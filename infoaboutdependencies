@@ -1,0 +1,71 @@
+✔ Spring Web
+->Used for:
+REST APIs
+Controllers
+JSON handling
+Embedded Tomcat
+
+✔ Spring Security
+->Used for:
+Authentication
+Authorization
+Security filters
+Password encoding
+
+✔ Spring Data JPA
+->Used for:
+Database interaction
+Hibernate
+Repository layer
+Entity mapping
+
+✔ PostgreSQL Driver
+->Used to connect Spring Boot with PostgreSQL database.
+
+✔ Validation
+->Used for:
+@Valid
+@NotNull
+@Email
+@Size
+
+✔ JWT dependency 
+->Used for:
+Creating JWT
+Parsing JWT
+Signing JWT
+JSON support inside token
+
+******In Spring Initializr select******:
+Spring Web
+Spring Security
+Spring Data JPA
+PostgreSQL Driver
+Validation
+*******Then manually add*******:
+JJWT dependencies
+***************************************************
+(JJWT is a third-party library and not a Spring Boot starter,
+    so it does NOT appear in Initializr.)
+***************************************************
+JJWT (Java JWT library) is:
+A pure Java library
+Used to create and validate JWT tokens
+Not officially maintained by Spring
+That’s why you must add it manually in pom.xml.
+
+*****Why did you add 3 dependencies for JWT?****
+You should say:
+jjwt-api → JWT core API
+jjwt-impl → Implementation (runtime only)
+jjwt-jackson → JSON serializer/deserializer
+
+***************************************************
+Spring Security itself does NOT generate JWT.
+It only provides security framework.
+JWT generation must be done using:
+JJWT
+or Nimbus JOSE
+or Auth0 Java JWT
+
+
