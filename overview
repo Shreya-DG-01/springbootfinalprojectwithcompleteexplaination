@@ -1,0 +1,210 @@
+Client
+  ↓
+[Controller]  ← receives HTTP request, validates DTOs
+  ↓
+[Service]     ← business logic, calls repo
+  ↓
+[Repository]  ← database access with JPA
+  ↓
+[Entity]      ← database mapping
+
+(Parallel to this: security filter intercepts request first)
+
+[Security Filter] → validates JWT → loads user details → sets SecurityContext
+
+Exception handler intercepts errors globally
+
+Utility classes used anywhere as helpers
+
+
+1️)Client Sends HTTP Request → controller Layer
+
+The client (browser/app/Postman) sends a REST API request (e.g., login, get user info).
+
+The controller class in com.jsp.usermanagement.controller receives the request.
+
+Controller validates request body (using DTOs from dto package).
+
+Controller calls the appropriate service method.
+
+Interview highlight:
+
+Controller handles incoming requests, validates data, and delegates to service layer.
+
+2️) Controller Calls Business Logic → service Layer
+
+com.jsp.usermanagement.service contains interfaces and/or classes implementing core business logic.
+
+Service methods handle things like authentication, user creation, updating data.
+
+Service layer uses DTOs to structure input/output and may perform additional validation or processing.
+
+Interview highlight:
+
+Service layer contains business logic and coordinates between controller and repository.
+
+3️) Service Interacts With Database → repository Layer
+
+Service calls repository interfaces inside com.jsp.usermanagement.repository.
+
+These interfaces extend JpaRepository or similar and automatically provide CRUD operations.
+
+Repositories query or update the database entities.
+
+Interview highlight:
+
+Repository abstracts database operations using JPA, providing a clean interface.
+
+4️) Database Mapping → entity Layer
+
+Repository deals with entity classes inside com.jsp.usermanagement.entity.
+
+Entities are JPA-annotated classes mapping Java objects to database tables.
+
+Entity fields correspond to table columns.
+
+Interview highlight:
+
+Entity classes map database tables to Java objects, enabling ORM.
+
+5️) Data Transfer Objects → dto Layer
+
+DTO classes (com.jsp.usermanagement.dto) represent data structures for requests and responses.
+
+Used to transfer data safely between client and server without exposing internal entities.
+
+Example: LoginRequest, LoginResponse, UserResponse.
+
+Interview highlight:
+
+DTOs ensure clean API contracts and prevent exposing sensitive internal data.
+
+6️) Security Layer In Action → security Package
+
+This is a critical part of your JWT app.
+
+Before controller receives request, JWT filters (e.g., JwtAuthenticationFilter) intercept HTTP requests.
+
+Filter extracts the JWT token from headers.
+
+Calls JWT utility (JwtUtil or similar) to validate token signature and expiry.
+
+Loads user details via CustomUserDetailsService (which fetches user from DB).
+
+Creates Authentication object and sets it in Spring Security’s SecurityContext.
+
+SecurityConfig sets up the entire chain: disabling sessions, CSRF, adding JWT filter.
+
+Interview highlight:
+
+Security layer authenticates requests statelessly using JWT, integrating with Spring Security filters.
+
+7️) Exception Handling → exception Package
+
+If any error happens (e.g., invalid token, bad request), custom exceptions can be thrown.
+
+Centralized @ControllerAdvice handles these exceptions and returns consistent error responses.
+
+Interview highlight:
+
+Exception layer provides centralized error handling and clean API error messages.
+
+8️) Utility Classes → utility Package
+
+Contains helper functions used across layers (e.g., date formatting, string helpers).
+
+Keeps code DRY (Don’t Repeat Yourself).
+
+Interview highlight:
+
+Utility classes encapsulate reusable logic to keep code clean.
+
+9️) Optional: config Package (If Present)
+
+Beans like PasswordEncoder (BCrypt) and CORS config live here.
+
+Helps keep config modular and maintainable.
+
+
+***********************************************************************
+ The app follows layered architecture. When a client sends a request, the controller receives and validates it using DTOs.
+The controller calls the service layer, which contains the business logic. Service interacts with the repository layer 
+to perform database operations on entities.
+Before the controller processes the request, the JWT security filter intercepts it to extract and validate the token,
+sets the user authentication context, allowing stateless authentication.
+Exception handling is centralized to provide consistent error responses. Utilities provide reusable helpers. 
+This separation ensures clean, maintainable code.
+
+***************************************************************************
+1️) REST API — The Communication Bridge
+REST API stands for Representational State Transfer Application Programming Interface.
+It is a way for clients (like web browsers, mobile apps, Postman) to communicate with your backend server.
+You design REST endpoints (URLs) to send and receive data in JSON format over HTTP.
+
+Example endpoints:
+POST /login → User login
+GET /users → Get list of users
+Why REST API?
+Language-agnostic (any client can use it)
+Stateless (each request is independent)
+Standard HTTP methods (GET, POST, PUT, DELETE)
+
+2️) Java Spring Boot Project (Eclipse IDE) — The Backend Server
+Your backend application is written in Java using Spring Boot framework.
+You write Java classes to:
+Define REST controllers (handle HTTP requests)
+Implement business logic (services)
+Map data to database (entities & repositories)
+Configure security (Spring Security + JWT)
+You use Eclipse IDE to write, compile, and run your Java Spring Boot project locally.
+When you run the app, it starts an embedded server (usually Tomcat) on your machine, 
+e.g. at http://localhost:8080.
+
+3️) Postman — The API Testing Tool (Client)
+Postman is a desktop/web application used to test your REST APIs.
+It acts as a client that sends HTTP requests to your Spring Boot server.
+You use Postman to:
+Send POST /login with username and password JSON body
+Receive JWT token in response
+Send protected requests with Authorization: Bearer <token> header
+Inspect responses and status codes
+Postman mimics what frontend or mobile apps do but in a simple, controlled way.
+
+4️)Database (PostgreSQL) — The Data Store
+PostgreSQL is your relational database.
+It stores your app’s persistent data — users, roles, tokens, etc.
+Your Spring Boot project connects to PostgreSQL using JDBC and JPA.
+When your app runs queries (via repositories), data is fetched or saved in PostgreSQL.
+Your application.properties configures connection details (url, username, password).
+
+*** How They Work Together — Step-by-Step Flow
+Step	What Happens
+1	You write backend code in Eclipse and run Spring Boot app locally. Server listens on port 8080.
+2	You open Postman and send a HTTP request (e.g., login).
+3	Postman sends JSON request over network to your Spring Boot REST API endpoint (e.g., /login).
+4	Spring Boot controller receives request, calls service layer, checks database via repositories.
+5	Database (PostgreSQL) returns data or updates it based on the query.
+6	Your app creates a JWT token after successful login and sends JSON response back.
+7	Postman shows you the response (token). You use token in future requests.
+8	When you send other requests, Spring Security checks JWT token validity before allowing access.
+
+#### Why This Matters for Interview
+Interviewers want to see you understand:
+Roles of each component (Eclipse, Spring Boot, Postman, PostgreSQL)
+How client-server communication works over REST
+How JWT fits in authentication flow
+How database integrates with backend
+
+**** Simple Analogy
+Real-world	Your Project
+Restaurant kitchen (prepares food)	Spring Boot backend (processes requests)
+Waiter (takes orders and delivers food)	Postman (client sends requests)
+Storage pantry (stores ingredients)	PostgreSQL database (stores data)
+Recipe book (how to cook)	Java code + Spring configuration (logic)
+***** Interview-Ready Summary
+
+We build backend REST APIs using Java Spring Boot, running locally in Eclipse.
+Postman is my tool to test these APIs by sending HTTP requests and inspecting responses.
+The backend connects to PostgreSQL database to read and write data.
+we implement JWT authentication so clients get a token on login, which is used to access 
+protected resources statelessly.
