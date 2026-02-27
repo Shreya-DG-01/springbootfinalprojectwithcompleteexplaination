@@ -1,0 +1,83 @@
+com.jsp.usermanagement
+│
+├── controller
+├── service
+├── service.impl (optional)
+├── repository
+├── entity
+├── dto
+├── security
+├── exception
+├── utility
+└── config (optional but recommended)
+
+1)Controller Layer:-
+  used for--Handles HTTP requests,Exposes REST APIs,Calls service layer,Returns ResponseEntity
+**Controller layer handles client requests and delegates business logic to service layer. It should not contain business logic.
+**Never write database logic here.
+2)Service Layer:-
+  used for--Contains business logic,Coordinates between controller and repository,Handles validation logic,Handles validation logic
+**Service layer contains core business logic and acts as a bridge between controller and repository.
+3)Optional: service.impl:-
+  used for--Some developers separate:UserService (interface),UserServiceImpl (implementation)
+**reason-Loose coupling,Easy testing,Cleaner architecture
+**Not mandatory, but shows good design practice
+4)Repository Layer:-
+  used for--Communicates with database,Extends JpaRepository,Performs CRUD operations
+**Repository layer abstracts database access using Spring Data JPA.Spring automatically provides implementation.
+5)Entity Layer:-
+  used for--Maps Java classes to database tables,Uses @Entity,@Id,@Table
+**Entity layer represents database tables and defines ORM mapping using JPA annotations.
+6)DTO Layer:-
+  used for--Transfer data between layers,Hide entity from API,Control request/response structure(LoginRequest,UserResponse...etc)
+**UserResponse,Customize response,Better security,Cleaner API
+**We use DTO to decouple internal entity structure from external API contract
+7)Security Layer:-
+  used for--This is the heart of JWT.SecurityConfig,JwtAuthenticationFilter,JwtService / JwtUtil,CustomUserDetailsService (includes these 4 in jwt)
+**SecurityConfig for
+Configures Spring Security
+Disables CSRF
+Sets session to STATELESS
+Adds JWT filter**
+****JwtAuthenticationFilter
+Extracts token from header
+Validates token
+Sets authentication in SecurityContext***
+***JwtUtil / JwtService
+Generates token
+Extracts username
+Validates expiration
+Signs token***
+***CustomUserDetailsService
+Loads user from DB
+Implements UserDetailsService***
+
+*****Security layer handles authentication and authorization using JWT and integrates with Spring Security filter chain.
+8)Exception Layer:-
+  used for--Handle application errors,Return structured error responses,Avoid exposing stack trace
+  should contain--CustomException,GlobalExceptionHandler (@ControllerAdvice)
+**use @ControllerAdvice for centralized exception handling
+9)Utility Layer:-(optional)
+  used for--Helper classes,Common reusable methods,Constants
+10)Config Layer:- (Recommended)
+  used for--CORS configuration,ModelMapper bean,PasswordEncoder bean
+
+******Complete Flow in This Architecture*****
+
+1)Client sends request
+2)Controller receives it
+3)Calls Service
+4)Service calls Repository
+5)Repository interacts with DB
+6)Response returns back
+
+***For secured APIs:****
+Request hits JwtAuthenticationFilter
+Token validated
+SecurityContext updated
+Controller executes
+
+***Explaination:-project follows layered architecture. Controller handles HTTP requests,
+Service contains business logic, Repository handles database operations, Entity maps database tables,
+DTO is used for request/response transfer, Security layer manages JWT authentication,
+and Exception layer handles centralized error handling.
